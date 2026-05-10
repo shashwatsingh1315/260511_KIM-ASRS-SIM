@@ -80,6 +80,7 @@ export interface Material {
 //       as family-level lists in the app config.
 // ------------------------------------------------------------
 export interface FamilyStatusConfig {
+  id: string;
   family: MaterialFamily;
   statuses: string[];                    // Ordered list of valid status names for this family
 }

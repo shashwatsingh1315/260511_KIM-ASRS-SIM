@@ -50,10 +50,10 @@ export function DataTable<T extends { id?: string }>({
 
   return (
     <div className="space-y-3">
-      <div className="overflow-x-auto rounded-xl border border-white/10 bg-[#1c1c1e]/40 backdrop-blur-md shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-black/10 bg-[#FFFFFF]/70 backdrop-blur-md shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-white/5 border-b border-white/10">
+            <tr className="bg-black/[0.02] border-b border-black/10">
               {columns.map((col) => (
                 <th key={col.key} className={`px-3 py-2 text-left text-gray-400 font-medium ${col.width ?? ""}`}>
                   {col.header}
@@ -66,7 +66,7 @@ export function DataTable<T extends { id?: string }>({
             {rows.map((row) => {
               const isEditing = editingRow?.id === row.id && !isNew;
               return (
-                <tr key={row.id ?? Math.random()} className="border-b border-white/5 hover:bg-white/5 transition-colors duration-150">
+                <tr key={row.id ?? Math.random()} className="border-b border-black/5 hover:bg-black/[0.02] transition-colors duration-150">
                   {columns.map((col) => {
                     const val = (row as any)[col.key];
                     let displayValue = String(val ?? "—");
@@ -79,7 +79,7 @@ export function DataTable<T extends { id?: string }>({
                         {isEditing && !col.readOnly ? (
                           <CellInput col={col} value={val} onChange={(v) => handleChange(col.key, v)} />
                         ) : (
-                          <span className="text-gray-300">{displayValue}</span>
+                          <span className="text-gray-700">{displayValue}</span>
                         )}
                       </td>
                     );
@@ -87,13 +87,13 @@ export function DataTable<T extends { id?: string }>({
                   <td className="px-3 py-2 text-right space-x-2">
                     {isEditing ? (
                       <>
-                        <button onClick={handleSave} className="text-xs text-green-400 hover:text-green-300">Save</button>
-                        <button onClick={handleCancel} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
+                        <button onClick={handleSave} className="text-xs text-green-600 hover:text-green-500">Save</button>
+                        <button onClick={handleCancel} className="text-xs text-gray-400 hover:text-gray-700">Cancel</button>
                       </>
                     ) : (
                       <>
-                        <button onClick={() => handleEdit(row)} className="text-xs text-white/70 hover:text-white font-medium transition-colors">Edit</button>
-                        <button onClick={() => onDelete(row.id!)} className="text-xs text-red-400 hover:text-red-300 font-medium transition-colors">Delete</button>
+                        <button onClick={() => handleEdit(row)} className="text-xs text-black/70 hover:text-black font-medium transition-colors">Edit</button>
+                        <button onClick={() => onDelete(row.id!)} className="text-xs text-red-600 hover:text-red-500 font-medium transition-colors">Delete</button>
                       </>
                     )}
                   </td>
@@ -103,15 +103,15 @@ export function DataTable<T extends { id?: string }>({
 
             {/* New row form */}
             {isNew && editingRow && (
-              <tr className="border-b border-white/10 bg-white/10 backdrop-blur-sm">
+              <tr className="border-b border-black/10 bg-black/5 backdrop-blur-sm">
                 {columns.map((col) => (
                   <td key={col.key} className="px-3 py-2">
                     <CellInput col={col} value={(editingRow as any)[col.key]} onChange={(v) => handleChange(col.key, v)} />
                   </td>
                 ))}
                 <td className="px-3 py-2 text-right space-x-2">
-                  <button onClick={handleSave} className="text-xs text-green-400 hover:text-green-300">Save</button>
-                  <button onClick={handleCancel} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
+                  <button onClick={handleSave} className="text-xs text-green-600 hover:text-green-500">Save</button>
+                  <button onClick={handleCancel} className="text-xs text-gray-400 hover:text-gray-700">Cancel</button>
                 </td>
               </tr>
             )}
@@ -120,7 +120,7 @@ export function DataTable<T extends { id?: string }>({
       </div>
       <button
         onClick={handleAdd}
-        className="text-sm font-medium text-white bg-white/10 hover:bg-white/15 border border-white/10 px-4 py-2 rounded-xl transition-all duration-200 shadow-sm"
+        className="text-sm font-medium text-black bg-black/5 hover:bg-white/15 border border-black/10 px-4 py-2 rounded-xl transition-all duration-200 shadow-sm"
       >
         + Add Row
       </button>
@@ -144,7 +144,7 @@ function CellInput({ col, value, onChange }: { col: ColDef; value: unknown; onCh
       <select
         value={String(value ?? "")}
         onChange={(e) => onChange(e.target.value)}
-        className="bg-black/20 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-sm w-full focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all shadow-inner"
+        className="bg-black/20 border border-black/10 rounded-lg px-2.5 py-1.5 text-black text-sm w-full focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all shadow-inner"
       >
         <option value="">— select —</option>
         {col.options.map((o) => {
@@ -160,7 +160,7 @@ function CellInput({ col, value, onChange }: { col: ColDef; value: unknown; onCh
       type={col.type === "number" ? "number" : "text"}
       value={String(value ?? "")}
       onChange={(e) => onChange(col.type === "number" ? Number(e.target.value) : e.target.value)}
-      className="bg-black/20 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-sm w-full focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all shadow-inner"
+      className="bg-black/20 border border-black/10 rounded-lg px-2.5 py-1.5 text-black text-sm w-full focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all shadow-inner"
     />
   );
 }

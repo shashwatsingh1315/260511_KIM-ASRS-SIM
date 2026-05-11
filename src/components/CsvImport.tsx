@@ -58,21 +58,21 @@ export function CsvImport({ templateHeaders, templateFilename, onImport }: CsvIm
       <div className="flex items-center gap-3">
         <button
           onClick={downloadTemplate}
-          className="text-sm font-medium text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl transition-all shadow-sm"
+          className="text-sm font-medium text-black/80 hover:text-black bg-black/[0.02] hover:bg-black/5 border border-black/10 px-4 py-2 rounded-xl transition-all shadow-sm"
         >
           ⬇ Download CSV Template
         </button>
-        <label className="text-sm font-medium text-white bg-white/10 hover:bg-white/15 border border-white/10 px-4 py-2 rounded-xl cursor-pointer transition-all shadow-sm">
+        <label className="text-sm font-medium text-black bg-black/5 hover:bg-white/15 border border-black/10 px-4 py-2 rounded-xl cursor-pointer transition-all shadow-sm">
           ⬆ Import CSV
           <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleFile} />
         </label>
       </div>
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       {preview && (
-        <div className="border border-white/10 rounded-xl p-5 bg-[#1c1c1e]/40 backdrop-blur-md shadow-sm space-y-4">
-          <p className="text-sm text-white/90 font-medium">
+        <div className="border border-black/10 rounded-xl p-5 bg-[#FFFFFF]/70 backdrop-blur-md shadow-sm space-y-4">
+          <p className="text-sm text-black/90 font-medium">
             Preview: {preview.length} row(s) to import
           </p>
           <div className="overflow-x-auto max-h-48">
@@ -88,12 +88,12 @@ export function CsvImport({ templateHeaders, templateFilename, onImport }: CsvIm
                 {preview.slice(0, 5).map((row, i) => (
                   <tr key={i}>
                     {Object.values(row).map((v, j) => (
-                      <td key={j} className="px-2 py-1 text-gray-300">{v}</td>
+                      <td key={j} className="px-2 py-1 text-gray-700">{v}</td>
                     ))}
                   </tr>
                 ))}
                 {preview.length > 5 && (
-                  <tr><td colSpan={99} className="px-2 py-1 text-gray-500">... and {preview.length - 5} more rows</td></tr>
+                  <tr><td colSpan={99} className="px-2 py-1 text-gray-400">... and {preview.length - 5} more rows</td></tr>
                 )}
               </tbody>
             </table>
@@ -102,7 +102,7 @@ export function CsvImport({ templateHeaders, templateFilename, onImport }: CsvIm
             <button onClick={handleConfirm} className="text-sm font-medium text-black bg-white hover:bg-gray-100 px-4 py-2 rounded-xl shadow-sm transition-all">
               ✓ Confirm Import
             </button>
-            <button onClick={handleCancel} className="text-sm font-medium text-white/70 hover:text-white bg-transparent hover:bg-white/5 border border-white/10 px-4 py-2 rounded-xl transition-all">
+            <button onClick={handleCancel} className="text-sm font-medium text-black/70 hover:text-black bg-transparent hover:bg-black/[0.02] border border-black/10 px-4 py-2 rounded-xl transition-all">
               Cancel
             </button>
           </div>

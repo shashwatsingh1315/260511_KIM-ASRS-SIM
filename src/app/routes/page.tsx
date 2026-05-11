@@ -57,8 +57,8 @@ export default function RoutesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-100">🗺 Routes</h1>
-        <p className="text-gray-500 text-sm mt-1">
+        <h1 className="text-2xl font-bold text-gray-900">🗺 Routes</h1>
+        <p className="text-gray-400 text-sm mt-1">
           The ordered list of processes each material goes through — from receipt to dispatch.
           Select a material, build its route step by step, then save.
         </p>
@@ -69,7 +69,7 @@ export default function RoutesPage() {
         <select
           value={selectedMaterialId}
           onChange={(e) => handleMaterialChange(e.target.value)}
-          className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-gray-200 text-sm w-72"
+          className="bg-gray-50 border border-gray-300 rounded px-3 py-2 text-gray-800 text-sm w-72"
         >
           <option value="">— choose a material —</option>
           {materials.map((m) => (
@@ -80,14 +80,14 @@ export default function RoutesPage() {
 
       {selectedMaterialId && (
         <div className="space-y-3">
-          <h2 className="text-base font-semibold text-gray-300">Route Steps (in order)</h2>
+          <h2 className="text-base font-semibold text-gray-700">Route Steps (in order)</h2>
           {steps.map((step, i) => (
-            <div key={i} className="flex items-center gap-3 bg-gray-900 border border-gray-800 rounded-lg px-4 py-3">
-              <span className="text-gray-500 text-sm w-6">{i + 1}.</span>
+            <div key={i} className="flex items-center gap-3 bg-white border border-gray-200 rounded-lg px-4 py-3">
+              <span className="text-gray-400 text-sm w-6">{i + 1}.</span>
               <select
                 value={step.process_id}
                 onChange={(e) => updateStep(i, "process_id", e.target.value)}
-                className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200 text-sm flex-1"
+                className="bg-gray-50 border border-gray-300 rounded px-2 py-1 text-gray-800 text-sm flex-1"
               >
                 <option value="">— select process —</option>
                 {processes.map((p) => (
@@ -95,25 +95,25 @@ export default function RoutesPage() {
                 ))}
               </select>
               <div className="flex items-center gap-2">
-                <label className="text-xs text-gray-500">Residence override (hr):</label>
+                <label className="text-xs text-gray-400">Residence override (hr):</label>
                 <input
                   type="number"
                   value={step.residence_time_hr_override ?? ""}
                   placeholder="use default"
                   onChange={(e) => updateStep(i, "residence_time_hr_override", e.target.value ? Number(e.target.value) : null)}
-                  className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200 text-sm w-28"
+                  className="bg-gray-50 border border-gray-300 rounded px-2 py-1 text-gray-800 text-sm w-28"
                 />
               </div>
-              <button onClick={() => moveStep(i, -1)} className="text-gray-500 hover:text-gray-300 text-sm">↑</button>
-              <button onClick={() => moveStep(i, 1)} className="text-gray-500 hover:text-gray-300 text-sm">↓</button>
-              <button onClick={() => removeStep(i)} className="text-red-400 hover:text-red-300 text-sm">✕</button>
+              <button onClick={() => moveStep(i, -1)} className="text-gray-400 hover:text-gray-700 text-sm">↑</button>
+              <button onClick={() => moveStep(i, 1)} className="text-gray-400 hover:text-gray-700 text-sm">↓</button>
+              <button onClick={() => removeStep(i)} className="text-red-600 hover:text-red-500 text-sm">✕</button>
             </div>
           ))}
           <div className="flex gap-3">
-            <button onClick={addStep} className="text-sm text-indigo-400 hover:text-indigo-300 border border-indigo-800 px-3 py-1.5 rounded-lg">
+            <button onClick={addStep} className="text-sm text-indigo-600 hover:text-indigo-300 border border-indigo-800 px-3 py-1.5 rounded-lg">
               + Add Step
             </button>
-            <button onClick={handleSave} className="text-sm text-green-400 hover:text-green-300 border border-green-800 px-3 py-1.5 rounded-lg">
+            <button onClick={handleSave} className="text-sm text-green-600 hover:text-green-500 border border-green-800 px-3 py-1.5 rounded-lg">
               Save Route
             </button>
           </div>

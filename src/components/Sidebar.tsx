@@ -46,9 +46,9 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-[#1c1c1e]/60 backdrop-blur-2xl border-r border-white/[0.08] flex flex-col z-50">
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-[#FFFFFF]/70 backdrop-blur-2xl border-r border-white/[0.08] flex flex-col z-50">
       <div className="px-6 py-6 border-b border-white/[0.08]">
-        <h1 className="text-lg font-semibold text-white tracking-tight">ASRS-Choker</h1>
+        <h1 className="text-lg font-semibold text-black tracking-tight">ASRS-Choker</h1>
         <p className="text-xs text-gray-400 mt-1 font-medium">Factory Planning Tool</p>
       </div>
       <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
@@ -60,8 +60,8 @@ export function Sidebar() {
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? "bg-white/10 text-white shadow-[0_1px_2px_rgba(0,0,0,0.2)]"
-                  : "text-gray-400 hover:bg-white/5 hover:text-gray-200"
+                  ? "bg-black/5 text-black shadow-[0_1px_2px_rgba(0,0,0,0.2)]"
+                  : "text-gray-400 hover:bg-black/[0.02] hover:text-gray-800"
               }`}
             >
               <span className="text-base opacity-80">{item.icon}</span>
@@ -75,13 +75,13 @@ export function Sidebar() {
       <div className="p-4 border-t border-white/[0.08] space-y-3">
         <div className="flex items-center gap-2 px-2">
           <div className={`w-2 h-2 rounded-full ${dbConnected ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"}`} />
-          <span className="text-xs font-medium text-gray-300">
+          <span className="text-xs font-medium text-gray-700">
             {dbConnected ? "Cloud Connected" : "Offline Mode"}
           </span>
         </div>
         <button
           onClick={handleBackup}
-          className="w-full text-xs font-medium text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded-lg transition-all shadow-sm flex items-center justify-center gap-2"
+          className="w-full text-xs font-medium text-black/80 hover:text-black bg-black/[0.02] hover:bg-black/5 border border-black/10 px-3 py-2 rounded-lg transition-all shadow-sm flex items-center justify-center gap-2"
         >
           <span>💾</span> Download Backup
         </button>

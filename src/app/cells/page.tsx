@@ -41,8 +41,8 @@ export default function CellsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-100">🏗 Cells</h1>
-        <p className="text-gray-500 text-sm mt-1">
+        <h1 className="text-2xl font-bold text-gray-900">🏗 Cells</h1>
+        <p className="text-gray-400 text-sm mt-1">
           Physical locations in the factory. Every station must live in a cell.
           Cell dimensions are used to check that station footprints fit (Rule 15).
         </p>

@@ -93,8 +93,8 @@ export default function MaterialsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-100">🧱 Materials</h1>
-        <p className="text-gray-500 text-sm mt-1">
+        <h1 className="text-2xl font-bold text-gray-900">🧱 Materials</h1>
+        <p className="text-gray-400 text-sm mt-1">
           Every thing that flows through the factory. After creating materials here,
           click "Edit Packaging" to link them to Packaging Masters.
         </p>
@@ -102,20 +102,20 @@ export default function MaterialsPage() {
 
       <CsvImport templateHeaders={CSV_HEADERS} templateFilename="materials-template.csv" onImport={handleImport} />
 
-      <div className="p-4 bg-gray-900 rounded-lg border border-gray-800 text-sm text-gray-400">
-        <strong className="text-gray-300">Note on Packaging Chain:</strong> The engine assumes the *last* level in the chain is the pallet.
+      <div className="p-4 bg-white rounded-lg border border-gray-200 text-sm text-gray-400">
+        <strong className="text-gray-700">Note on Packaging Chain:</strong> The engine assumes the *last* level in the chain is the pallet.
       </div>
 
       <div className="space-y-4">
         {materials.map((m) => (
-          <div key={m.id} className="flex justify-between items-center p-3 border border-gray-800 rounded-lg bg-gray-900/50">
+          <div key={m.id} className="flex justify-between items-center p-3 border border-gray-200 rounded-lg bg-black/[0.02]0">
             <div>
-              <span className="font-medium text-gray-200">{m.name}</span>
-              <span className="text-gray-500 text-sm ml-2">({m.code})</span>
+              <span className="font-medium text-gray-800">{m.name}</span>
+              <span className="text-gray-400 text-sm ml-2">({m.code})</span>
             </div>
             <button
               onClick={() => setEditingMaterial(m)}
-              className="text-sm text-indigo-400 border border-indigo-800 hover:bg-indigo-900/30 px-3 py-1.5 rounded"
+              className="text-sm text-indigo-600 border border-indigo-800 hover:bg-indigo-900/30 px-3 py-1.5 rounded"
             >
               Edit Packaging Chain ({m.packaging_chain?.length || 0})
             </button>
@@ -123,8 +123,8 @@ export default function MaterialsPage() {
         ))}
       </div>
 
-      <div className="mt-8 pt-8 border-t border-gray-800">
-        <h2 className="text-lg font-semibold text-gray-300 mb-4">Base Attributes</h2>
+      <div className="mt-8 pt-8 border-t border-gray-200">
+        <h2 className="text-lg font-semibold text-gray-700 mb-4">Base Attributes</h2>
         <DataTable columns={COLUMNS} rows={materials} onSave={upsertMaterial} onDelete={deleteMaterial} newRowTemplate={newMaterial} />
       </div>
 
@@ -142,12 +142,12 @@ export default function MaterialsPage() {
           
           <div className="space-y-3">
             {editingMaterial?.packaging_chain.map((level, i) => (
-              <div key={i} className="flex items-center gap-3 bg-gray-950 p-3 rounded border border-gray-800">
-                <span className="text-gray-500 text-sm w-4">{i + 1}.</span>
+              <div key={i} className="flex items-center gap-3 bg-gray-950 p-3 rounded border border-gray-200">
+                <span className="text-gray-400 text-sm w-4">{i + 1}.</span>
                 <select
                   value={level.packaging_master_id}
                   onChange={(e) => updatePackagingLevel(i, "packaging_master_id", e.target.value)}
-                  className="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded px-2 py-1.5 flex-1"
+                  className="bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded px-2 py-1.5 flex-1"
                 >
                   <option value="">— Select Container/Pallet —</option>
                   {packagingMasters.map(pm => (
@@ -155,36 +155,36 @@ export default function MaterialsPage() {
                   ))}
                 </select>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">Qty per parent:</span>
+                  <span className="text-xs text-gray-400">Qty per parent:</span>
                   <input
                     type="number"
                     value={level.qty_per_parent}
                     onChange={(e) => updatePackagingLevel(i, "qty_per_parent", Number(e.target.value))}
-                    className="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded px-2 py-1.5 w-20"
+                    className="bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded px-2 py-1.5 w-20"
                   />
                 </div>
-                <button onClick={() => moveLevel(i, -1)} className="text-gray-500 hover:text-white px-1">↑</button>
-                <button onClick={() => moveLevel(i, 1)} className="text-gray-500 hover:text-white px-1">↓</button>
-                <button onClick={() => removePackagingLevel(i)} className="text-red-400 hover:text-red-300 ml-2">✕</button>
+                <button onClick={() => moveLevel(i, -1)} className="text-gray-400 hover:text-black px-1">↑</button>
+                <button onClick={() => moveLevel(i, 1)} className="text-gray-400 hover:text-black px-1">↓</button>
+                <button onClick={() => removePackagingLevel(i)} className="text-red-600 hover:text-red-500 ml-2">✕</button>
               </div>
             ))}
             
             {editingMaterial?.packaging_chain.length === 0 && (
-              <div className="text-sm text-gray-500 italic p-4 text-center border border-dashed border-gray-700 rounded">
+              <div className="text-sm text-gray-400 italic p-4 text-center border border-dashed border-gray-300 rounded">
                 No packaging defined. Add a level below.
               </div>
             )}
           </div>
 
           <div className="flex justify-between pt-4">
-            <button onClick={addPackagingLevel} className="text-sm text-indigo-400 hover:text-indigo-300">
+            <button onClick={addPackagingLevel} className="text-sm text-indigo-600 hover:text-indigo-300">
               + Add Level
             </button>
             <div className="space-x-3">
-              <button onClick={() => setEditingMaterial(null)} className="text-sm text-gray-400 hover:text-white">
+              <button onClick={() => setEditingMaterial(null)} className="text-sm text-gray-400 hover:text-black">
                 Cancel
               </button>
-              <button onClick={saveChain} className="text-sm bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded">
+              <button onClick={saveChain} className="text-sm bg-green-600 hover:bg-green-500 text-black px-4 py-2 rounded">
                 Save Chain
               </button>
             </div>

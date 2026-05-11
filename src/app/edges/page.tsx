@@ -32,8 +32,8 @@ export default function EdgesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-100">🛤 Edges</h1>
-        <p className="text-gray-500 text-sm mt-1">
+        <h1 className="text-2xl font-bold text-gray-900">🛤 Edges</h1>
+        <p className="text-gray-400 text-sm mt-1">
           Physical connections between cells: elevators, lanes, bridges.
           In v1, edges are stored but not used in calculations (lane traversal is instantaneous).
           Enter them now so v2 routing works without data migration.

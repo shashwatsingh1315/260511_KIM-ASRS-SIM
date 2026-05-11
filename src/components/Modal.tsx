@@ -28,14 +28,14 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     <dialog
       ref={dialogRef}
       onClose={onClose}
-      className="fixed inset-0 m-auto p-0 bg-transparent backdrop:bg-black/70 z-50 rounded-xl border border-gray-700 shadow-2xl max-w-2xl w-full"
+      className="fixed inset-0 m-auto p-0 bg-transparent backdrop:bg-black/70 z-50 rounded-xl border border-gray-300 shadow-2xl max-w-2xl w-full"
     >
-      <div className="bg-gray-900 w-full flex flex-col max-h-[85vh]">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
-          <h2 className="text-xl font-semibold text-gray-100">{title}</h2>
+      <div className="bg-white w-full flex flex-col max-h-[85vh]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-black transition-colors"
           >
             ✕
           </button>

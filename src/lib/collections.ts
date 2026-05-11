@@ -1,13 +1,3 @@
-import {
-  collection,
-  getDocs,
-  setDoc,
-  deleteDoc,
-  doc,
-  addDoc,
-  getDoc,
-} from "firebase/firestore";
-import { db } from "./firestore";
 import type {
   Cell,
   PackagingMaster,
@@ -21,45 +11,50 @@ import type {
 } from "@/types";
 
 // ─────────────────────────────────────────────
-// Generic helpers — all collections use these
+// Generic helpers — LocalStorage implementation
 // ─────────────────────────────────────────────
 
-/**
- * Load every document from a Firestore collection.
- * The document's Firestore ID is merged into the returned object as `id`.
- */
-export async function getAll<T>(collectionName: string): Promise<T[]> {
-  const snap = await getDocs(collection(db, collectionName));
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as T));
+function generateId() {
+  return Math.random().toString(36).substring(2, 9);
 }
 
-/**
- * Save (create or update) one document.
- * - If `data.id` exists → update that specific document.
- * - If `data.id` is missing → create a new document (Firestore generates the ID).
- * Returns the final ID.
- */
+export async function getAll<T>(collectionName: string): Promise<T[]> {
+  if (typeof window === "undefined") return [];
+  const data = localStorage.getItem(`asrs_${collectionName}`);
+  return data ? JSON.parse(data) : [];
+}
+
 export async function upsert<T extends { id?: string }>(
   collectionName: string,
   data: T
 ): Promise<string> {
+  const items = await getAll<T>(collectionName);
   const { id, ...rest } = data as Record<string, unknown>;
+  
   if (id) {
-    await setDoc(doc(db, collectionName, id as string), rest, { merge: true });
+    const idx = items.findIndex((i: any) => i.id === id);
+    if (idx >= 0) {
+      items[idx] = { ...items[idx], ...rest } as any;
+    } else {
+      items.push({ id, ...rest } as any);
+    }
+    localStorage.setItem(`asrs_${collectionName}`, JSON.stringify(items));
     return id as string;
   }
-  const ref = await addDoc(collection(db, collectionName), rest);
-  return ref.id;
+  
+  const newId = generateId();
+  items.push({ id: newId, ...rest } as any);
+  localStorage.setItem(`asrs_${collectionName}`, JSON.stringify(items));
+  return newId;
 }
 
-/**
- * Delete one document by its ID.
- */
 export async function remove(
   collectionName: string,
   id: string
 ): Promise<void> {
-  await deleteDoc(doc(db, collectionName, id));
+  const items = await getAll<{ id: string }>(collectionName);
+  const filtered = items.filter((i) => i.id !== id);
+  localStorage.setItem(`asrs_${collectionName}`, JSON.stringify(filtered));
 }
 
 // ─────────────────────────────────────────────
@@ -119,15 +114,20 @@ export const EdgesCol = {
 // Engine config is a single document with a fixed ID "global"
 export const EngineConfigCol = {
   get: async (): Promise<EngineConfig> => {
-    const snap = await getDoc(doc(db, "engineConfig", "global"));
-    if (snap.exists()) return snap.data() as EngineConfig;
-    // Return sensible defaults if not yet configured
-    return {
-      global_yield_default: 0.97,
-      working_hours_per_day: 16,
-      pallet_pool_declared: null,
-    };
+    if (typeof window === "undefined") return getDefaultEngineConfig();
+    const data = localStorage.getItem("asrs_engineConfig");
+    if (data) return JSON.parse(data);
+    return getDefaultEngineConfig();
   },
-  set: (d: EngineConfig) =>
-    setDoc(doc(db, "engineConfig", "global"), d, { merge: true }),
+  set: async (d: EngineConfig) => {
+    localStorage.setItem("asrs_engineConfig", JSON.stringify(d));
+  },
 };
+
+function getDefaultEngineConfig(): EngineConfig {
+  return {
+    global_yield_default: 0.97,
+    working_hours_per_day: 16,
+    pallet_pool_declared: null,
+  };
+}

@@ -58,11 +58,11 @@ export function CsvImport({ templateHeaders, templateFilename, onImport }: CsvIm
       <div className="flex items-center gap-3">
         <button
           onClick={downloadTemplate}
-          className="text-sm text-gray-400 hover:text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg"
+          className="text-sm font-medium text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl transition-all shadow-sm"
         >
           ⬇ Download CSV Template
         </button>
-        <label className="text-sm text-indigo-400 hover:text-indigo-300 border border-indigo-800 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-indigo-950/40 transition-colors">
+        <label className="text-sm font-medium text-white bg-white/10 hover:bg-white/15 border border-white/10 px-4 py-2 rounded-xl cursor-pointer transition-all shadow-sm">
           ⬆ Import CSV
           <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleFile} />
         </label>
@@ -71,8 +71,8 @@ export function CsvImport({ templateHeaders, templateFilename, onImport }: CsvIm
       {error && <p className="text-sm text-red-400">{error}</p>}
 
       {preview && (
-        <div className="border border-indigo-800 rounded-lg p-4 bg-indigo-950/20 space-y-3">
-          <p className="text-sm text-indigo-300 font-medium">
+        <div className="border border-white/10 rounded-xl p-5 bg-[#1c1c1e]/40 backdrop-blur-md shadow-sm space-y-4">
+          <p className="text-sm text-white/90 font-medium">
             Preview: {preview.length} row(s) to import
           </p>
           <div className="overflow-x-auto max-h-48">
@@ -98,11 +98,11 @@ export function CsvImport({ templateHeaders, templateFilename, onImport }: CsvIm
               </tbody>
             </table>
           </div>
-          <div className="flex gap-3">
-            <button onClick={handleConfirm} className="text-sm text-green-400 hover:text-green-300 border border-green-800 px-3 py-1.5 rounded-lg">
+          <div className="flex gap-3 pt-2">
+            <button onClick={handleConfirm} className="text-sm font-medium text-black bg-white hover:bg-gray-100 px-4 py-2 rounded-xl shadow-sm transition-all">
               ✓ Confirm Import
             </button>
-            <button onClick={handleCancel} className="text-sm text-gray-500 hover:text-gray-300 border border-gray-700 px-3 py-1.5 rounded-lg">
+            <button onClick={handleCancel} className="text-sm font-medium text-white/70 hover:text-white bg-transparent hover:bg-white/5 border border-white/10 px-4 py-2 rounded-xl transition-all">
               Cancel
             </button>
           </div>

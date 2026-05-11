@@ -9,19 +9,49 @@ import type {
   Edge,
   EngineConfig,
 } from "@/types";
+import { getAllDb, upsertDb, removeDb, getConfigDb, setConfigDb } from "@/app/actions/db";
 
 // ─────────────────────────────────────────────
-// Generic helpers — LocalStorage implementation
+// Generic helpers — Hybrid Local-First Implementation
 // ─────────────────────────────────────────────
 
 function generateId() {
   return Math.random().toString(36).substring(2, 9);
 }
 
-export async function getAll<T>(collectionName: string): Promise<T[]> {
+export async function getAll<T extends { id?: string }>(collectionName: string): Promise<T[]> {
   if (typeof window === "undefined") return [];
-  const data = localStorage.getItem(`asrs_${collectionName}`);
-  return data ? JSON.parse(data) : [];
+  
+  let cloudData: T[] = [];
+  try {
+    cloudData = await getAllDb<T>(collectionName) || [];
+  } catch (error) {
+    console.warn(`Upstash fetch failed for ${collectionName}, falling back to local storage.`);
+  }
+
+  const localDataStr = localStorage.getItem(`asrs_${collectionName}`);
+  const localData: T[] = localDataStr ? JSON.parse(localDataStr) : [];
+
+  // Merge local and cloud data (Cloud wins conflicts)
+  const mergedMap = new Map<string, T>();
+  localData.forEach(item => { if (item.id) mergedMap.set(item.id, item); });
+  cloudData.forEach(item => { if (item.id) mergedMap.set(item.id, item); });
+  
+  const mergedData = Array.from(mergedMap.values());
+
+  // If local had data but cloud was empty, perform a one-time migration push
+  if (localData.length > 0 && cloudData.length === 0) {
+    try {
+      await Promise.all(localData.map((item) => upsertDb(collectionName, item.id!, item)));
+    } catch (e) {
+      console.warn("Failed to migrate local data to Upstash", e);
+    }
+  }
+
+  // Always keep local storage updated with the merged set
+  localStorage.setItem(`asrs_${collectionName}`, JSON.stringify(mergedData));
+  
+  return mergedData;
 }
 
 export async function upsert<T extends { id?: string }>(
@@ -30,22 +60,28 @@ export async function upsert<T extends { id?: string }>(
 ): Promise<string> {
   const items = await getAll<T>(collectionName);
   const { id, ...rest } = data as Record<string, unknown>;
+  const resolvedId = (id as string) || generateId();
+  const itemToSave = { id: resolvedId, ...rest } as any;
   
-  if (id) {
-    const idx = items.findIndex((i: any) => i.id === id);
-    if (idx >= 0) {
-      items[idx] = { ...items[idx], ...rest } as any;
-    } else {
-      items.push({ id, ...rest } as any);
-    }
-    localStorage.setItem(`asrs_${collectionName}`, JSON.stringify(items));
-    return id as string;
+  // Update local items array
+  const idx = items.findIndex((i: any) => i.id === resolvedId);
+  if (idx >= 0) {
+    items[idx] = itemToSave;
+  } else {
+    items.push(itemToSave);
   }
   
-  const newId = generateId();
-  items.push({ id: newId, ...rest } as any);
+  // 1. Save to local storage immediately
   localStorage.setItem(`asrs_${collectionName}`, JSON.stringify(items));
-  return newId;
+  
+  // 2. Async save to Upstash
+  try {
+    await upsertDb(collectionName, resolvedId, itemToSave);
+  } catch (error) {
+    console.warn(`Upstash upsert failed for ${collectionName}. Data is safe locally.`);
+  }
+  
+  return resolvedId;
 }
 
 export async function remove(
@@ -54,12 +90,20 @@ export async function remove(
 ): Promise<void> {
   const items = await getAll<{ id: string }>(collectionName);
   const filtered = items.filter((i) => i.id !== id);
+  
+  // 1. Save to local storage immediately
   localStorage.setItem(`asrs_${collectionName}`, JSON.stringify(filtered));
+  
+  // 2. Async remove from Upstash
+  try {
+    await removeDb(collectionName, id);
+  } catch (error) {
+    console.warn(`Upstash remove failed for ${collectionName}.`);
+  }
 }
 
 // ─────────────────────────────────────────────
 // Typed wrappers — one per entity type
-// Use these everywhere; don't call getAll/upsert/remove directly.
 // ─────────────────────────────────────────────
 
 export const CellsCol = {
@@ -115,12 +159,32 @@ export const EdgesCol = {
 export const EngineConfigCol = {
   get: async (): Promise<EngineConfig> => {
     if (typeof window === "undefined") return getDefaultEngineConfig();
+    
+    // Try Upstash first
+    try {
+      const cloudConfig = await getConfigDb<EngineConfig>("engineConfig");
+      if (cloudConfig) {
+        localStorage.setItem("asrs_engineConfig", JSON.stringify(cloudConfig));
+        return cloudConfig;
+      }
+    } catch (error) {
+      console.warn("Upstash config fetch failed, falling back to local.");
+    }
+    
+    // Fallback
     const data = localStorage.getItem("asrs_engineConfig");
     if (data) return JSON.parse(data);
     return getDefaultEngineConfig();
   },
   set: async (d: EngineConfig) => {
+    // 1. Save local
     localStorage.setItem("asrs_engineConfig", JSON.stringify(d));
+    // 2. Save cloud
+    try {
+      await setConfigDb("engineConfig", d);
+    } catch (error) {
+      console.warn("Upstash config save failed.");
+    }
   },
 };
 

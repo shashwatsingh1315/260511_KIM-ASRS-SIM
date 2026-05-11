@@ -8,7 +8,7 @@ export function UndoBar() {
   const undoFuture = useAppStore((s) => s.undoFuture);
 
   return (
-    <div className="fixed bottom-0 left-64 right-0 h-12 bg-gray-900 border-t border-gray-800 flex items-center px-6 gap-4 z-50">
+    <div className="fixed bottom-0 left-64 right-0 h-14 bg-[#1c1c1e]/60 backdrop-blur-2xl border-t border-white/[0.08] flex items-center px-8 gap-6 z-50">
       <button
         onClick={() => undo()}
         disabled={undoPast.length === 0}

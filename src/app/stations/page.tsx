@@ -17,8 +17,8 @@ export default function StationsPage() {
 
   const COLUMNS: ColDef[] = [
     { key: "name",                   header: "Name",               type: "text" },
-    { key: "cell_id",                header: "Cell",               type: "select", options: cells.map((c) => c.id) },
-    { key: "process_id",             header: "Process",            type: "select", options: processes.map((p) => p.id) },
+    { key: "cell_id",                header: "Cell",               type: "select", options: cells.map((c) => ({ label: c.name, value: c.id })) },
+    { key: "process_id",             header: "Process",            type: "select", options: processes.map((p) => ({ label: p.name, value: p.id })) },
     { key: "peak_throughput_pph",    header: "Peak pph",           type: "number" },
     { key: "holding_capacity_pallets",header: "Holding (pallets)", type: "number" },
     { key: "operating_hours_per_day",header: "Op. Hours/Day",      type: "number" },

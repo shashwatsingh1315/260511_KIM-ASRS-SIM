@@ -279,8 +279,57 @@ function checkCells(data: EngineInput): CellCheck[] {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// STEP 6: Pallet Pool Sizing (Axiom A11)
-// Total pallets needed = sum of all WIP across all stations
+// STEP 6: Edge Capacity Checks
+// Sum throughput for all flows that move between cells.
+// ─────────────────────────────────────────────────────────────────
+function checkEdges(data: EngineInput, stepDemands: StepDemand[]): EdgeCheck[] {
+  const results: EdgeCheck[] = [];
+  const stationMap = new Map(data.stations.map((s) => [s.process_id, s]));
+
+  for (const edge of data.edges) {
+    let flowPph = 0;
+
+    // Find all materials whose route moves from edge.from to edge.to
+    for (const route of data.routes) {
+      for (let i = 0; i < route.steps.length - 1; i++) {
+        const s1 = stationMap.get(route.steps[i].process_id);
+        const s2 = stationMap.get(route.steps[i+1].process_id);
+        if (!s1 || !s2) continue;
+
+        const fromCell = s1.cell_id;
+        const toCell = s2.cell_id;
+
+        // Does this route step use this edge?
+        // Simple logic: if the cells match and the direction is correct
+        if (fromCell === edge.from_cell_id && toCell === edge.to_cell_id) {
+          const demand = stepDemands.find((d) => d.material_id === route.material_id && d.process_id === s2.process_id && !d.is_reject_branch);
+          if (demand) flowPph += demand.throughput_pallets_pph;
+        } else if (edge.bidirectional && fromCell === edge.to_cell_id && toCell === edge.from_cell_id) {
+          const demand = stepDemands.find((d) => d.material_id === route.material_id && d.process_id === s2.process_id && !d.is_reject_branch);
+          if (demand) flowPph += demand.throughput_pallets_pph;
+        }
+      }
+    }
+
+    const util = edge.capacity_pph > 0 ? (flowPph / edge.capacity_pph) * 100 : 0;
+
+    results.push({
+      edge_id: edge.id,
+      edge_name: edge.name,
+      from_cell_id: edge.from_cell_id,
+      to_cell_id: edge.to_cell_id,
+      throughput_required_pph: flowPph,
+      throughput_capacity_pph: edge.capacity_pph,
+      utilization_percent: util,
+      bottleneck: util > 100,
+    });
+  }
+
+  return results;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// STEP 7: Pallet Pool Sizing (Axiom A11)
 // ─────────────────────────────────────────────────────────────────
 function computePalletPool(stepWIPs: StepWIP[]): number {
   return stepWIPs.reduce((sum, w) => sum + w.wip_pallets, 0);
@@ -329,6 +378,7 @@ export function runAnalysis(data: EngineInput): AnalysisResult {
       step_wips: [],
       station_checks: [],
       cell_checks: [],
+      edge_checks: [],
       total_pallets_needed: 0,
       pallet_pool_gap: null,
       alerts: validationErrors.map((e) => ({
@@ -345,6 +395,7 @@ export function runAnalysis(data: EngineInput): AnalysisResult {
   const stepWIPs = buildStepWIPs(data, stepDemands);
   const stationChecks = checkStations(data, stepDemands, stepWIPs);
   const cellChecks = checkCells(data);
+  const edgeChecks = checkEdges(data, stepDemands);
   const totalPalletsNeeded = computePalletPool(stepWIPs);
   const conservationAlerts = checkConservation(data);
 
@@ -381,6 +432,17 @@ export function runAnalysis(data: EngineInput): AnalysisResult {
     }
   }
 
+  for (const ec of edgeChecks) {
+    if (ec.bottleneck) {
+      alerts.push({
+        severity: "error",
+        category: "edge",
+        message: `Edge "${ec.edge_name}": requires ${ec.throughput_required_pph.toFixed(1)} pph but capacity is ${ec.throughput_capacity_pph} pph (${ec.utilization_percent.toFixed(1)}% util).`,
+        entity_id: ec.edge_id,
+      });
+    }
+  }
+
   const palletPoolDeclared = data.engineConfig.pallet_pool_declared;
   let palletPoolGap: number | null = null;
   if (palletPoolDeclared !== null) {
@@ -401,6 +463,7 @@ export function runAnalysis(data: EngineInput): AnalysisResult {
     step_wips: stepWIPs,
     station_checks: stationChecks,
     cell_checks: cellChecks,
+    edge_checks: edgeChecks,
     total_pallets_needed: totalPalletsNeeded,
     pallet_pool_gap: palletPoolGap,
     alerts,

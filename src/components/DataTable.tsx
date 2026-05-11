@@ -5,9 +5,9 @@ export interface ColDef {
   key: string;
   header: string;
   type: "text" | "number" | "boolean" | "select";
-  options?: string[];       // Only for type="select"
-  readOnly?: boolean;       // If true, show as text (not editable)
-  width?: string;           // Tailwind width class e.g. "w-32"
+  options?: (string | { label: string; value: string })[]; // Support labels and values
+  readOnly?: boolean;
+  width?: string;
 }
 
 interface DataTableProps<T extends { id?: string }> {
@@ -50,10 +50,10 @@ export function DataTable<T extends { id?: string }>({
 
   return (
     <div className="space-y-3">
-      <div className="overflow-x-auto rounded-lg border border-gray-800">
+      <div className="overflow-x-auto rounded-xl border border-white/10 bg-[#1c1c1e]/40 backdrop-blur-md shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-900 border-b border-gray-800">
+            <tr className="bg-white/5 border-b border-white/10">
               {columns.map((col) => (
                 <th key={col.key} className={`px-3 py-2 text-left text-gray-400 font-medium ${col.width ?? ""}`}>
                   {col.header}
@@ -66,18 +66,24 @@ export function DataTable<T extends { id?: string }>({
             {rows.map((row) => {
               const isEditing = editingRow?.id === row.id && !isNew;
               return (
-                <tr key={row.id ?? Math.random()} className="border-b border-gray-800 hover:bg-gray-900/50">
-                  {columns.map((col) => (
-                    <td key={col.key} className="px-3 py-2">
-                      {isEditing && !col.readOnly ? (
-                        <CellInput col={col} value={(editingRow as any)[col.key]} onChange={(v) => handleChange(col.key, v)} />
-                      ) : (
-                        <span className="text-gray-300">
-                          {String((row as any)[col.key] ?? "—")}
-                        </span>
-                      )}
-                    </td>
-                  ))}
+                <tr key={row.id ?? Math.random()} className="border-b border-white/5 hover:bg-white/5 transition-colors duration-150">
+                  {columns.map((col) => {
+                    const val = (row as any)[col.key];
+                    let displayValue = String(val ?? "—");
+                    if (col.type === "select" && col.options) {
+                      const opt = col.options.find(o => typeof o === "object" ? o.value === val : o === val);
+                      if (opt && typeof opt === "object") displayValue = opt.label;
+                    }
+                    return (
+                      <td key={col.key} className="px-3 py-2">
+                        {isEditing && !col.readOnly ? (
+                          <CellInput col={col} value={val} onChange={(v) => handleChange(col.key, v)} />
+                        ) : (
+                          <span className="text-gray-300">{displayValue}</span>
+                        )}
+                      </td>
+                    );
+                  })}
                   <td className="px-3 py-2 text-right space-x-2">
                     {isEditing ? (
                       <>
@@ -86,8 +92,8 @@ export function DataTable<T extends { id?: string }>({
                       </>
                     ) : (
                       <>
-                        <button onClick={() => handleEdit(row)} className="text-xs text-indigo-400 hover:text-indigo-300">Edit</button>
-                        <button onClick={() => onDelete(row.id!)} className="text-xs text-red-400 hover:text-red-300">Delete</button>
+                        <button onClick={() => handleEdit(row)} className="text-xs text-white/70 hover:text-white font-medium transition-colors">Edit</button>
+                        <button onClick={() => onDelete(row.id!)} className="text-xs text-red-400 hover:text-red-300 font-medium transition-colors">Delete</button>
                       </>
                     )}
                   </td>
@@ -97,7 +103,7 @@ export function DataTable<T extends { id?: string }>({
 
             {/* New row form */}
             {isNew && editingRow && (
-              <tr className="border-b border-indigo-800 bg-indigo-950/30">
+              <tr className="border-b border-white/10 bg-white/10 backdrop-blur-sm">
                 {columns.map((col) => (
                   <td key={col.key} className="px-3 py-2">
                     <CellInput col={col} value={(editingRow as any)[col.key]} onChange={(v) => handleChange(col.key, v)} />
@@ -114,7 +120,7 @@ export function DataTable<T extends { id?: string }>({
       </div>
       <button
         onClick={handleAdd}
-        className="text-sm text-indigo-400 hover:text-indigo-300 border border-indigo-800 px-3 py-1.5 rounded-lg hover:bg-indigo-950/40 transition-colors"
+        className="text-sm font-medium text-white bg-white/10 hover:bg-white/15 border border-white/10 px-4 py-2 rounded-xl transition-all duration-200 shadow-sm"
       >
         + Add Row
       </button>
@@ -138,10 +144,14 @@ function CellInput({ col, value, onChange }: { col: ColDef; value: unknown; onCh
       <select
         value={String(value ?? "")}
         onChange={(e) => onChange(e.target.value)}
-        className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200 text-sm w-full"
+        className="bg-black/20 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-sm w-full focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all shadow-inner"
       >
         <option value="">— select —</option>
-        {col.options.map((o) => <option key={o} value={o}>{o}</option>)}
+        {col.options.map((o) => {
+          const label = typeof o === "object" ? o.label : o;
+          const val = typeof o === "object" ? o.value : o;
+          return <option key={val} value={val}>{label}</option>;
+        })}
       </select>
     );
   }
@@ -150,7 +160,7 @@ function CellInput({ col, value, onChange }: { col: ColDef; value: unknown; onCh
       type={col.type === "number" ? "number" : "text"}
       value={String(value ?? "")}
       onChange={(e) => onChange(col.type === "number" ? Number(e.target.value) : e.target.value)}
-      className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200 text-sm w-full"
+      className="bg-black/20 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-sm w-full focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all shadow-inner"
     />
   );
 }

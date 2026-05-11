@@ -60,9 +60,13 @@ interface StoreState {
   undoPast: Snapshot[];
   undoFuture: Snapshot[];
 
+  // Database Connection State
+  dbConnected: boolean;
+
   // Actions
   loadAll: () => Promise<void>;
   setAnalysisResult: (r: AnalysisResult | null) => void;
+  checkConnection: () => Promise<void>;
 
   // --- Cells ---
   upsertCell: (item: Cell) => Promise<void>;
@@ -151,6 +155,7 @@ export const useAppStore = create<StoreState>((set, get) => ({
   lastAnalysisResult: null,
   undoPast: [],
   undoFuture: [],
+  dbConnected: false,
 
   // ── Load all data from Firestore on startup ──
   loadAll: async () => {
@@ -174,6 +179,18 @@ export const useAppStore = create<StoreState>((set, get) => ({
       processes, routes, stations, edges, engineConfig,
       isLoading: false,
     });
+    // Check connection after initial load
+    get().checkConnection();
+  },
+
+  checkConnection: async () => {
+    try {
+      const { pingDb } = await import("@/app/actions/db");
+      const isConnected = await pingDb();
+      set({ dbConnected: isConnected });
+    } catch {
+      set({ dbConnected: false });
+    }
   },
 
   setAnalysisResult: (r) => set({ lastAnalysisResult: r }),

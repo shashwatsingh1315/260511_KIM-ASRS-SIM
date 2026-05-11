@@ -9,7 +9,7 @@ export default function EdgesPage() {
   const upsertEdge = useAppStore((s) => s.upsertEdge);
   const deleteEdge = useAppStore((s) => s.deleteEdge);
 
-  const cellOptions = cells.map((c) => c.id);
+  const cellOptions = cells.map((c) => ({ label: c.name, value: c.id }));
 
   const COLUMNS: ColDef[] = [
     { key: "name",           header: "Name",          type: "text" },

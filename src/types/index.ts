@@ -248,10 +248,22 @@ export interface CellCheck {
   footprint_bottleneck: boolean;
 }
 
+// Edge capacity check result
+export interface EdgeCheck {
+  edge_id: string;
+  edge_name: string;
+  from_cell_id: string;
+  to_cell_id: string;
+  throughput_required_pph: number;
+  throughput_capacity_pph: number;
+  utilization_percent: number;
+  bottleneck: boolean;
+}
+
 // An alert shown to the user
 export interface Alert {
   severity: "error" | "warning";
-  category: "throughput" | "holding" | "footprint" | "pallet-pool" | "conservation" | "validation";
+  category: "throughput" | "holding" | "footprint" | "pallet-pool" | "conservation" | "validation" | "edge";
   message: string;
   entity_id?: string;                    // The station, cell, or material that caused this
 }
@@ -264,6 +276,7 @@ export interface AnalysisResult {
   step_wips: StepWIP[];
   station_checks: StationCheck[];
   cell_checks: CellCheck[];
+  edge_checks: EdgeCheck[];
   total_pallets_needed: number;
   pallet_pool_gap: number | null;        // null if pool_declared is null
   alerts: Alert[];

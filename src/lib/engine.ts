@@ -1,7 +1,7 @@
 import type {
   Cell, Material, Process, Route, RouteStep,
   Station, EngineConfig,
-  StepDemand, StepWIP, StationCheck, CellCheck, Alert, AnalysisResult,
+  StepDemand, StepWIP, StationCheck, CellCheck, EdgeCheck, Alert, AnalysisResult,
 } from "@/types";
 import { validateNetwork, ValidationInput } from "./validation";
 
